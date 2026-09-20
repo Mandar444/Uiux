@@ -1,0 +1,949 @@
+<title>ClassBook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    /* app UI tokens (light) */
+    --bg:#f4f3fb; --surface:#ffffff; --surface-2:#f5f4fc; --surface-3:#efedf9;
+    --ink:#161234; --ink-2:#4a4667; --muted:#807d9a; --faint:#a9a6c1;
+    --line:#ecebf6; --line-2:#ddd8ee;
+    --v1:#6d3bf5; --v2:#9147ee; --b1:#4f7cf7;
+    --accent:#ff7a59; --mint:#12b886; --amber:#f59e0b; --red:#ef4757;
+    --grad:linear-gradient(135deg,#6d3bf5 0%,#8b5cf6 46%,#4f8bf0 100%);
+    --grad-soft:linear-gradient(135deg,#efe9fe,#e6effe);
+    --tint:#efe9fe; --tint-b:#e7effe;
+    --amber-soft:#fdf3e0; --amber-line:#f3ddb0; --amber-ink:#b7791f;
+    --mint-soft:#e2f6ee; --mint-line:#bfe9d8; --mint-ink:#0c7a5b;
+    --red-soft:#fdeaec; --red-line:#f6ccd2; --red-ink:#d61f37;
+    --sh1:0 1px 2px rgba(22,18,52,.05),0 2px 8px rgba(22,18,52,.05);
+    --sh2:0 10px 30px rgba(22,18,52,.10);
+    --sh-btn:0 8px 20px rgba(109,59,245,.32);
+    --r:16px; --r-lg:22px; --r-xl:30px;
+    --sans:"Plus Jakarta Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --disp:"Manrope",var(--sans);
+    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  }
+  :root:not([data-theme="light"]){ @media (prefers-color-scheme:dark){
+    --bg:#0f0c1f; --surface:#191534; --surface-2:#211c42; --surface-3:#2a2450;
+    --ink:#f1eefb; --ink-2:#c7c2e0; --muted:#948fb4; --faint:#6f6a90;
+    --line:#2b2650; --line-2:#39336a;
+    --v1:#9878ff; --v2:#b48cff; --b1:#79a2ff;
+    --accent:#ff9276; --mint:#3ddba7; --amber:#f6b743; --red:#ff6b7a;
+    --grad:linear-gradient(135deg,#7c4dff 0%,#9d6bff 46%,#5f94ff 100%);
+    --grad-soft:linear-gradient(135deg,#241a4a,#1a2450);
+    --tint:#251c4c; --tint-b:#1b2550;
+    --amber-soft:#2e2410; --amber-line:#4a3a1a; --amber-ink:#f6b743;
+    --mint-soft:#12291f; --mint-line:#204634; --mint-ink:#3ddba7;
+    --red-soft:#2e1519; --red-line:#4c242c; --red-ink:#ff6b7a;
+    --sh1:0 1px 2px rgba(0,0,0,.4); --sh2:0 12px 32px rgba(0,0,0,.55);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0f0c1f; --surface:#191534; --surface-2:#211c42; --surface-3:#2a2450;
+    --ink:#f1eefb; --ink-2:#c7c2e0; --muted:#948fb4; --faint:#6f6a90;
+    --line:#2b2650; --line-2:#39336a;
+    --v1:#9878ff; --v2:#b48cff; --b1:#79a2ff;
+    --accent:#ff9276; --mint:#3ddba7; --amber:#f6b743; --red:#ff6b7a;
+    --grad:linear-gradient(135deg,#7c4dff 0%,#9d6bff 46%,#5f94ff 100%);
+    --grad-soft:linear-gradient(135deg,#241a4a,#1a2450);
+    --tint:#251c4c; --tint-b:#1b2550;
+    --amber-soft:#2e2410; --amber-line:#4a3a1a; --amber-ink:#f6b743;
+    --mint-soft:#12291f; --mint-line:#204634; --mint-ink:#3ddba7;
+    --red-soft:#2e1519; --red-line:#4c242c; --red-ink:#ff6b7a;
+    --sh1:0 1px 2px rgba(0,0,0,.4); --sh2:0 12px 32px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{height:100%}
+  body{margin:0;color:#fff;font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.45;
+    background:
+      radial-gradient(90% 60% at 15% 0%, rgba(124,77,255,.45), transparent 60%),
+      radial-gradient(80% 60% at 100% 20%, rgba(79,124,247,.40), transparent 55%),
+      radial-gradient(90% 70% at 60% 110%, rgba(255,122,89,.22), transparent 60%),
+      #120e26;}
+  h1,h2,h3,h4{font-family:var(--disp);margin:0;letter-spacing:-.008em;text-wrap:balance}
+  button{font-family:inherit;cursor:pointer}
+  .mono{font-family:var(--mono);font-feature-settings:"tnum"}
+
+  .stage{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:26px 16px 44px}
+  .top{width:100%;max-width:1000px;display:flex;align-items:center;gap:14px;margin-bottom:26px;flex-wrap:wrap}
+  .logo{width:42px;height:42px;border-radius:13px;background:var(--grad);display:grid;place-items:center;
+    color:#fff;box-shadow:var(--sh-btn)}
+  .top h1{font-size:22px;font-weight:800;color:#fff}
+  .top .sub{font-size:12.5px;color:rgba(255,255,255,.62);margin-top:1px}
+  .top .spacer{flex:1}
+  .pill{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;
+    padding:9px 15px;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:7px;backdrop-filter:blur(8px)}
+  .pill:hover{background:rgba(255,255,255,.16)}
+
+  .device-wrap{display:flex;justify-content:center;width:100%}
+  .device{width:398px;max-width:100%;background:#08060f;border-radius:52px;padding:11px;position:relative;
+    box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 2px rgba(255,255,255,.06),inset 0 0 0 1px rgba(255,255,255,.04)}
+  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:118px;height:26px;background:#08060f;
+    border-radius:0 0 18px 18px;z-index:20}
+  .screen{background:var(--bg);border-radius:42px;overflow:hidden;position:relative;height:788px;display:flex;flex-direction:column}
+
+  .statusbar{display:flex;align-items:center;justify-content:space-between;padding:12px 30px 4px;font-size:13px;
+    font-weight:700;color:var(--ink);flex:none}
+  .statusbar .r{display:flex;gap:6px;align-items:center}
+
+  .body{flex:1;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
+  .body::-webkit-scrollbar{width:0}
+  .pad{padding:6px 18px 128px;display:flex;flex-direction:column;gap:16px}
+
+  .page{display:none;animation:fade .34s cubic-bezier(.22,.61,.36,1)}
+  .page.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.page{animation:none}}
+
+  /* top app row inside screen */
+  .approw{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 4px}
+  .approw .l{display:flex;align-items:center;gap:11px}
+  .greet .hi{font-size:12.5px;color:var(--muted);font-weight:600}
+  .greet .nm{font-size:16px;font-weight:700;font-family:var(--disp);color:var(--ink);letter-spacing:-.006em}
+  .avatar{width:44px;height:44px;border-radius:14px;background:var(--grad);color:#fff;display:grid;place-items:center;
+    font-size:15px;font-weight:700;box-shadow:var(--sh-btn)}
+  .iconbtn{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:var(--surface);
+    display:grid;place-items:center;color:var(--ink-2);box-shadow:var(--sh1)}
+  .iconbtn:hover{color:var(--v1);border-color:var(--v1)}
+  .iconbtn.plain{border:0;background:transparent;box-shadow:none}
+
+  /* context header for sub-pages */
+  .subhead{display:flex;align-items:center;gap:12px;padding:8px 18px 2px}
+  .subhead .back{width:42px;height:42px;border-radius:13px;border:1px solid var(--line);background:var(--surface);
+    display:grid;place-items:center;color:var(--ink);box-shadow:var(--sh1);flex:none}
+  .subhead .back:hover{color:var(--v1);border-color:var(--v1)}
+  .subhead .tt{font-size:12px;color:var(--muted);font-weight:600}
+  .subhead .th{font-size:17px;font-weight:700;font-family:var(--disp);color:var(--ink);letter-spacing:-.006em;line-height:1.15}
+
+  h2.big{color:var(--ink);font-size:26px;font-weight:800;letter-spacing:-.012em;line-height:1.1}
+  .lead{color:var(--muted);font-size:13.5px;line-height:1.5}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--v1)}
+  .h-sec{color:var(--ink);font-size:15px;font-weight:700;font-family:var(--disp)}
+  .stepdot{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:8px;background:var(--grad);
+    color:#fff;font-size:12px;font-weight:700;font-family:var(--sans);vertical-align:middle;margin-right:8px;box-shadow:var(--sh-btn)}
+
+  /* hero search card */
+  .hero{border-radius:var(--r-xl);padding:20px;color:#fff;position:relative;overflow:hidden;background:var(--grad);
+    box-shadow:0 18px 40px rgba(109,59,245,.36)}
+  .hero::after{content:"";position:absolute;right:-40px;top:-50px;width:200px;height:200px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,.28),transparent 62%)}
+  .hero h2{font-size:23px;font-weight:800;letter-spacing:-.012em;position:relative}
+  .hero p{font-size:12.5px;opacity:.9;margin-top:6px;max-width:230px;position:relative}
+  .hero .glasscard{position:relative;margin-top:16px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);
+    border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:9px;backdrop-filter:blur(6px)}
+  .hglr{display:flex;gap:9px}
+  .hin{flex:1;background:rgba(255,255,255,.95);border-radius:12px;padding:8px 11px;display:flex;flex-direction:column;gap:1px}
+  .hin .k{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8b88a8}
+  .hin .v{font-size:13px;font-weight:700;color:#161234;display:flex;align-items:center;gap:5px}
+  .hbtn{width:100%;height:46px;border:0;border-radius:13px;background:#161234;color:#fff;font-size:14.5px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 18px rgba(0,0,0,.25)}
+  .hbtn:hover{filter:brightness(1.12)}
+
+  /* quick chips */
+  .quick{display:flex;gap:9px;overflow-x:auto;padding:2px 0}
+  .quick::-webkit-scrollbar{height:0}
+  .qchip{flex:none;display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:8px 13px;font-size:12.5px;font-weight:600;color:var(--ink-2);box-shadow:var(--sh1)}
+  .qchip svg{color:var(--v1)}
+  .qchip:hover{border-color:var(--v1);color:var(--v1)}
+
+  .rowhead{display:flex;align-items:center;justify-content:space-between}
+  .rowhead .more{color:var(--v1);font-size:12.5px;font-weight:700;background:none;border:0}
+
+  /* cards */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh1)}
+  .card.p{padding:16px}
+
+  /* room card with image */
+  .room{border-radius:var(--r-lg);overflow:hidden;background:var(--surface);border:1px solid var(--line);
+    box-shadow:var(--sh1);transition:transform .15s,box-shadow .15s}
+  .room:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+  .rimg{height:126px;position:relative;display:block}
+  .rimg .tagrow{position:absolute;left:12px;top:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start}
+  .rtag{background:rgba(255,255,255,.92);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;color:#161234;
+    display:inline-flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  .rtag.avail{color:var(--mint-ink)}
+  .rtag svg{width:12px;height:12px}
+  .rbody{padding:14px 15px 16px;display:flex;flex-direction:column;gap:11px}
+  .rtitle{font-size:16px;font-weight:700;font-family:var(--disp);color:var(--ink);letter-spacing:-.006em}
+  .rsub{font-size:12px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px}
+  .amen{display:flex;flex-wrap:wrap;gap:7px}
+  .achip{font-size:11px;font-weight:600;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);
+    border-radius:8px;padding:4px 9px;display:inline-flex;align-items:center;gap:5px}
+  .achip svg{color:var(--v1);width:13px;height:13px}
+  .rfoot{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .rcap{font-size:12.5px;color:var(--ink-2);font-weight:600;display:flex;align-items:center;gap:6px}
+  .rcap svg{color:var(--v1)}
+
+  /* buttons */
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:50px;border-radius:15px;
+    font-size:14.5px;font-weight:700;border:1px solid transparent;transition:transform .06s,filter .15s}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:var(--sh-btn)}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btn-ghost{background:var(--surface);color:var(--ink);border-color:var(--line-2)}
+  .btn-ghost:hover{border-color:var(--v1);color:var(--v1)}
+  .btn-soft{background:var(--tint);color:var(--v1);border-color:transparent}
+  .btn-soft:hover{filter:brightness(.98)}
+  .btn-danger{background:var(--red-soft);color:var(--red-ink);border-color:var(--red-line)}
+  .btn.sm{height:44px;font-size:13.5px;border-radius:13px}
+  .btn.pillbtn{border-radius:999px}
+  .btnrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .actions{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+
+  /* fields */
+  .field{display:flex;flex-direction:column;gap:7px}
+  .field label{font-size:12px;font-weight:700;color:var(--ink-2)}
+  .control{display:flex;align-items:center;gap:10px;height:50px;padding:0 14px;background:var(--surface);
+    border:1.5px solid var(--line-2);border-radius:14px;color:var(--ink);font-size:14px;font-weight:600}
+  .control svg{color:var(--muted);flex:none}
+  .control .val{flex:1;outline:none}
+  .control .chev{margin-left:auto;color:var(--faint)}
+  .control:focus-within{border-color:var(--v1);box-shadow:0 0 0 4px var(--tint)}
+  .control.err{border-color:var(--red);background:var(--red-soft)}
+  .help{font-size:11.5px;color:var(--muted)}
+  .help.err{color:var(--red-ink);font-weight:700;display:flex;align-items:center;gap:5px}
+
+  /* badges */
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:800;
+    letter-spacing:.03em;text-transform:uppercase;border:1px solid transparent}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .b-pending{color:var(--amber-ink);background:var(--amber-soft);border-color:var(--amber-line)}
+  .b-approved{color:var(--mint-ink);background:var(--mint-soft);border-color:var(--mint-line)}
+  .b-rejected{color:var(--red-ink);background:var(--red-soft);border-color:var(--red-line)}
+
+  /* banners */
+  .banner{border-radius:var(--r);padding:13px 15px;display:flex;gap:12px;align-items:flex-start;font-size:12.5px}
+  .banner .bi{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center}
+  .banner strong{display:block;font-size:13.5px;font-family:var(--disp);font-weight:700;margin-bottom:2px}
+  .banner-err{background:var(--red-soft);border:1px solid var(--red-line);color:var(--ink-2)}
+  .banner-err .bi{background:var(--red);color:#fff} .banner-err strong{color:var(--red-ink)}
+  .banner-info{background:var(--grad-soft);border:1px solid var(--line);color:var(--ink-2)}
+  .banner-info .bi{background:var(--grad);color:#fff}
+
+  /* summary strip */
+  .sumcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--sh1);
+    display:flex;gap:12px;align-items:center}
+  .sumcard .ic{width:42px;height:42px;border-radius:12px;background:var(--grad);color:#fff;display:grid;place-items:center;flex:none}
+  .sumcard .k{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  .sumcard .v{font-size:13px;font-weight:700;color:var(--ink);margin-top:2px}
+
+  /* kv rows */
+  .rows{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh1);overflow:hidden}
+  .rows .sec-h{padding:15px 16px 12px;font-size:14px;font-weight:700;font-family:var(--disp);color:var(--ink);
+    display:flex;justify-content:space-between;align-items:center}
+  .rows .sec-h .edit{color:var(--v1);font-size:12.5px;font-weight:700;background:none;border:0}
+  .kv{display:flex;justify-content:space-between;gap:14px;padding:13px 16px;align-items:baseline;border-top:1px solid var(--line)}
+  .kv .k{font-size:12.5px;color:var(--muted);font-weight:600;flex:none}
+  .kv .v{font-size:13px;font-weight:700;color:var(--ink);text-align:right}
+  .stack{display:flex;flex-direction:column;gap:3px;padding:13px 16px;border-top:1px solid var(--line)}
+  .stack .k{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  .stack .v{font-size:13.5px;font-weight:600;color:var(--ink)}
+
+  /* centered state */
+  .state{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:44px 22px}
+  .glyph{width:92px;height:92px;border-radius:28px;display:grid;place-items:center;margin-bottom:8px;position:relative}
+  .glyph.gp{background:var(--grad);color:#fff;box-shadow:var(--sh-btn)}
+  .glyph.gw{background:linear-gradient(135deg,#ffb347,#ff7a59);color:#fff;box-shadow:0 12px 26px rgba(255,122,89,.4)}
+  .glyph.gok{background:linear-gradient(135deg,#22c993,#0ea371);color:#fff;box-shadow:0 12px 26px rgba(18,184,134,.4)}
+  .glyph .ping{position:absolute;inset:-8px;border-radius:34px;border:2px solid currentColor;opacity:.25;animation:ping 1.6s ease-out infinite}
+  @keyframes ping{0%{transform:scale(.85);opacity:.4}100%{transform:scale(1.25);opacity:0}}
+  .state h2{color:var(--ink);font-size:22px;font-weight:800}
+  .state p{color:var(--muted);font-size:13.5px;max-width:270px;line-height:1.5}
+  .spin{animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}.glyph .ping{display:none}}
+
+  /* steps / timeline */
+  .steps{display:flex;flex-direction:column;gap:14px}
+  .step{display:flex;gap:12px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+  .step .n{flex:none;width:26px;height:26px;border-radius:9px;background:var(--tint);color:var(--v1);font-weight:800;
+    font-size:12px;display:grid;place-items:center}
+  .timeline{display:flex;flex-direction:column}
+  .tl{display:flex;gap:14px;padding-bottom:18px}
+  .tl:last-child{padding-bottom:0}
+  .tl .node{flex:none;width:18px;display:flex;flex-direction:column;align-items:center}
+  .tl .ring{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);background:var(--surface);display:grid;place-items:center;color:#fff}
+  .tl .stem{flex:1;width:2px;background:var(--line);margin-top:3px;min-height:16px}
+  .tl:last-child .stem{display:none}
+  .tl.done .ring{background:var(--mint);border-color:var(--mint)}
+  .tl.done .stem{background:var(--mint)}
+  .tl.active .ring{border-color:var(--v1);box-shadow:0 0 0 5px var(--tint)}
+  .tl.active .ring::after{content:"";width:7px;height:7px;border-radius:50%;background:var(--v1)}
+  .tl .tt{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .tl .ts{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .tl.pending .tt{color:var(--muted)}
+
+  /* rules / contact */
+  .rule{display:flex;gap:12px;font-size:12.5px;color:var(--ink-2);line-height:1.5;padding:12px 16px;border-top:1px solid var(--line)}
+  .rule .n{flex:none;width:26px;height:26px;border-radius:9px;background:var(--grad);color:#fff;font-weight:800;font-size:12px;display:grid;place-items:center}
+  .prose{font-size:12.5px;color:var(--ink-2);line-height:1.65;padding:0 16px 16px}
+  .contact-i{display:flex;align-items:center;gap:11px;font-size:12.5px;color:var(--ink-2);padding:11px 16px;border-top:1px solid var(--line)}
+  .contact-i .ci{width:34px;height:34px;border-radius:10px;background:var(--tint);color:var(--v1);display:grid;place-items:center;flex:none}
+
+  /* tabs */
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 0 2px}
+  .tabs::-webkit-scrollbar{height:0}
+  .tab{flex:none;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);border-radius:999px;
+    padding:8px 15px;font-size:12.5px;font-weight:700;box-shadow:var(--sh1)}
+  .tab.on{background:var(--grad);color:#fff;border-color:transparent;box-shadow:var(--sh-btn)}
+  .reqcard{padding:15px;display:flex;flex-direction:column;gap:12px}
+  .reqtop{display:flex;align-items:center;justify-content:space-between}
+  .reqtop .code{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .reqtop .code .cc{width:32px;height:32px;border-radius:10px;background:var(--tint);color:var(--v1);display:grid;place-items:center}
+  .reqm .m1{font-size:14px;font-weight:700;color:var(--ink)}
+  .reqm .m2{font-size:12px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:6px}
+
+  .checkbox{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);line-height:1.45;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--sh1)}
+  .checkbox .box{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid var(--line-2);background:var(--surface);
+    display:grid;place-items:center;color:#fff;margin-top:1px}
+  .checkbox.checked .box{background:var(--grad);border-color:transparent}
+  .checkbox .box svg{opacity:0}.checkbox.checked .box svg{opacity:1}
+
+  /* bottom tab bar */
+  .tabbar{flex:none;position:relative;z-index:6;background:var(--surface);border-top:1px solid var(--line);
+    padding:10px 14px calc(14px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 -6px 24px rgba(22,18,52,.06)}
+  .tbtn{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;color:var(--faint);
+    font-size:10px;font-weight:700;flex:1;padding:4px 0}
+  .tbtn svg{width:23px;height:23px}
+  .tbtn.on{color:var(--v1)}
+  .tfab{flex:none;width:58px;height:58px;border-radius:19px;background:var(--grad);color:#fff;display:grid;place-items:center;
+    box-shadow:var(--sh-btn);border:0;margin-top:-22px;border:4px solid var(--bg)}
+  .tfab:hover{filter:brightness(1.08)}
+
+  /* drawer */
+  .scrim{position:absolute;inset:0;background:rgba(10,8,22,.55);opacity:0;pointer-events:none;transition:opacity .28s;z-index:14;backdrop-filter:blur(2px)}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .drawer{position:absolute;top:0;left:0;bottom:0;width:82%;max-width:300px;background:var(--surface);z-index:15;
+    transform:translateX(-104%);transition:transform .32s cubic-bezier(.22,.61,.36,1);display:flex;flex-direction:column}
+  .drawer.on{transform:none}
+  .dhero{background:var(--grad);color:#fff;padding:26px 20px 20px}
+  .dhero .avatar{width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.3);margin-bottom:12px}
+  .dhero .nm{font-size:18px;font-weight:800;font-family:var(--disp)}
+  .dhero .rl{font-size:12px;opacity:.85;font-family:var(--mono)}
+  .ditems{padding:12px;display:flex;flex-direction:column;gap:3px;flex:1}
+  .ditem{display:flex;align-items:center;gap:14px;padding:13px 13px;border-radius:14px;border:0;background:transparent;
+    color:var(--ink);font-size:14.5px;font-weight:600;text-align:left;width:100%}
+  .ditem svg{color:var(--muted)}
+  .ditem:hover{background:var(--surface-3)}
+  .ditem.on{background:var(--tint);color:var(--v1)}.ditem.on svg{color:var(--v1)}
+  .dclose{position:absolute;top:18px;right:16px;width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.2);
+    border:0;color:#fff;display:grid;place-items:center;z-index:2}
+
+  /* screen picker overlay (presentation control) */
+  .picker{position:fixed;inset:0;background:rgba(8,6,18,.72);backdrop-filter:blur(6px);z-index:40;display:none;
+    padding:34px 18px;overflow:auto}
+  .picker.on{display:block}
+  .picker .pk{max-width:920px;margin:0 auto}
+  .picker .pkh{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .picker .pkh h3{color:#fff;font-size:19px;font-weight:800}
+  .pkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .pkitem{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:14px;
+    color:#fff;text-align:left;transition:transform .12s,background .15s}
+  .pkitem:hover{background:rgba(255,255,255,.14);transform:translateY(-2px)}
+  .pkitem .pkn{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+  .pkitem .pkt{font-size:14px;font-weight:700;margin-top:6px}
+  .pkitem .pks{font-size:11.5px;color:rgba(255,255,255,.6);margin-top:3px}
+  .pkitem .dt{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:#9878ff}
+  .pkitem.w .dt{background:var(--amber)}.pkitem.o .dt{background:var(--mint)}.pkitem.b .dt{background:var(--red)}
+
+  .foot{width:100%;max-width:1000px;margin-top:22px;color:rgba(255,255,255,.55);font-size:12px;text-align:center}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="ic-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="ic-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c0-3 2.9-5.2 6.5-5.2S15.5 17 15.5 20"/><path d="M16 5.2A3.4 3.4 0 0 1 16 12M21.5 20c0-2.5-1.6-4.4-4-5"/></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="ic-chevd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="ic-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="ic-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="ic-chip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3"/></symbol>
+  <symbol id="ic-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v3M8 21h8"/></symbol>
+  <symbol id="ic-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></symbol>
+  <symbol id="ic-access" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="1.6"/><path d="M6 7h12M12 7v7m0 0l-3 6m3-6l3 6"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 16.5H2.5L12 3z"/><path d="M12 9.5v4.5M12 17.5h.01"/></symbol>
+  <symbol id="ic-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.3M21 3v5h-5"/></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="ic-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-6.5 8 6.5M6 9.5V20h12V9.5"/></symbol>
+  <symbol id="ic-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></symbol>
+  <symbol id="ic-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.7 2.7 0 0 1 5.2 1c0 1.8-2.7 2.3-2.7 4M12 17.5h.01"/></symbol>
+  <symbol id="ic-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 6.5l8.5 6 8.5-6"/></symbol>
+  <symbol id="ic-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h3l1.5 5-2 1.5a12 12 0 0 0 6 6l1.5-2 5 1.5v3a2 2 0 0 1-2 2A17 17 0 0 1 4 5a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.6 5.5 6 .8-4.4 4.1 1.1 6-5.3-2.9L6.4 19.5l1.1-6L3 9.4l6-.8z"/></symbol>
+  <symbol id="ic-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L5 13h6l-1 8 8-10h-6z"/></symbol>
+</svg>
+
+<div class="stage">
+  <div class="top">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg></div>
+    <div>
+      <h1>ClassBook</h1>
+      <div class="sub">Campus room booking · premium concept</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="pill" id="pickBtn"><svg width="15" height="15"><use href="#ic-list"/></svg> All screens</button>
+    <button class="pill" id="themeBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke-linecap="round"/></svg><span id="themeLbl">Light</span></button>
+  </div>
+
+  <div class="device-wrap">
+    <div class="device">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="statusbar">
+          <span>9:41</span>
+          <span class="r">
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4.5" y="4.5" width="3" height="7.5" rx="1"/><rect x="9" y="2" width="3" height="10" rx="1"/><rect x="13.5" y="0" width="3" height="12" rx="1"/></svg>
+            <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="20" height="10" rx="3" stroke="currentColor" stroke-width="1.3"/><rect x="3" y="3" width="14" height="6" rx="1.5" fill="currentColor"/><rect x="22" y="4" width="1.6" height="4" rx=".8" fill="currentColor"/></svg>
+          </span>
+        </div>
+
+        <div class="body" id="scroll">
+          <div class="pad">
+
+            <!-- ================= HOME ================= -->
+            <section class="page on" data-page="home">
+              <div class="approw" style="padding-left:0;padding-right:0">
+                <div class="l">
+                  <button class="iconbtn plain" id="menuBtn" aria-label="Menu"><svg width="24" height="24"><use href="#ic-menu"/></svg></button>
+                  <div class="greet"><div class="hi">Good morning,</div><div class="nm">Mandar Patil</div></div>
+                </div>
+                <button class="iconbtn" aria-label="Notifications"><svg width="21" height="21"><use href="#ic-bell"/></svg></button>
+              </div>
+
+              <div class="hero">
+                <h2>Find your space on campus</h2>
+                <p>Reserve classrooms &amp; lecture halls for clubs, study sessions and events.</p>
+                <div class="glasscard">
+                  <div class="hin"><span class="k">Date</span><span class="v"><svg width="14" height="14" style="color:#6d3bf5"><use href="#ic-cal"/></svg> <span class="mono">Sep 15, 2026</span></span></div>
+                  <div class="hglr">
+                    <div class="hin"><span class="k">From</span><span class="v mono">10:00 AM</span></div>
+                    <div class="hin"><span class="k">To</span><span class="v mono">12:00 PM</span></div>
+                    <div class="hin"><span class="k">People</span><span class="v mono">35</span></div>
+                  </div>
+                  <button class="hbtn" data-go="loading"><svg width="17" height="17"><use href="#ic-search"/></svg> Check availability</button>
+                </div>
+              </div>
+
+              <div class="quick">
+                <button class="qchip"><svg width="15" height="15"><use href="#ic-bolt"/></svg> Free now</button>
+                <button class="qchip"><svg width="15" height="15"><use href="#ic-board"/></svg> Has projector</button>
+                <button class="qchip"><svg width="15" height="15"><use href="#ic-users"/></svg> 50+ seats</button>
+                <button class="qchip"><svg width="15" height="15"><use href="#ic-access"/></svg> Accessible</button>
+              </div>
+
+              <div class="rowhead">
+                <div class="h-sec">Your recent request</div>
+                <button class="more" data-go="requests">See all</button>
+              </div>
+              <div class="card reqcard" role="button" tabindex="0" data-go="pending">
+                <div class="reqtop"><span class="code"><span class="cc"><svg width="16" height="16"><use href="#ic-list"/></svg></span>CR-1048</span><span class="badge b-pending">Pending</span></div>
+                <div class="reqm"><div class="m1">Room 204, Engineering Building</div><div class="m2"><svg width="13" height="13" style="color:var(--v1)"><use href="#ic-clock"/></svg> Sep 10, 2026 · 02:00 PM</div></div>
+              </div>
+            </section>
+
+            <!-- ================= LOADING ================= -->
+            <section class="page" data-page="loading">
+              <div class="subhead"><button class="back" data-go="home"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt">Searching</div><div class="th">Available rooms</div></div></div>
+              <div class="sumcard" style="margin-top:14px"><span class="ic"><svg width="20" height="20"><use href="#ic-search"/></svg></span>
+                <div><div class="k">Active search</div><div class="v"><span class="mono">Sep 15</span> · 10:00 AM–12:00 PM · 35 people</div></div></div>
+              <div class="state">
+                <div class="glyph gp"><span class="ping"></span><svg class="spin" width="40" height="40"><use href="#ic-refresh"/></svg></div>
+                <h2>Checking availability…</h2>
+                <p>Hang tight while we match rooms to your search.</p>
+              </div>
+              <div class="actions"><button class="btn btn-ghost" data-go="home">Cancel</button></div>
+            </section>
+
+            <!-- ================= RESULTS ================= -->
+            <section class="page" data-page="results">
+              <div class="subhead"><button class="back" data-go="home"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt"><span class="mono">Sep 15</span> · 10:00–12:00 · 35 people</div><div class="th">3 rooms available</div></div>
+                <div style="flex:1"></div>
+                <button class="iconbtn" id="filterBtn" aria-label="Filter"><svg width="20" height="20"><use href="#ic-chip"/></svg></button></div>
+
+              <div class="card p" id="filterPanel" hidden style="display:flex;flex-direction:column;gap:11px;margin-top:14px">
+                <div class="field"><label>Building</label><div class="control"><svg width="16" height="16"><use href="#ic-pin"/></svg><span class="val">All buildings</span><svg class="chev" width="16" height="16"><use href="#ic-chevd"/></svg></div></div>
+                <div class="btnrow">
+                  <div class="field"><label>Floor</label><div class="control"><span class="val">All</span><svg class="chev" width="16" height="16"><use href="#ic-chevd"/></svg></div></div>
+                  <div class="field"><label>Equipment</label><div class="control"><span class="val">Any</span><svg class="chev" width="16" height="16"><use href="#ic-chevd"/></svg></div></div>
+                </div>
+              </div>
+
+              <div style="height:14px"></div>
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <!-- room 1 -->
+                <div class="room" role="button" tabindex="0" data-go="details">
+                  <div class="rimg" style="background:linear-gradient(135deg,#6d3bf5,#a06bf0)">
+                    <svg viewBox="0 0 320 130" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0" aria-hidden="true">
+                      <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c4dff"/><stop offset="1" stop-color="#b06bf0"/></linearGradient></defs>
+                      <rect width="320" height="130" fill="url(#g1)"/>
+                      <rect x="18" y="16" width="120" height="60" rx="4" fill="#fff" opacity=".16"/>
+                      <path d="M18 16v60M48 16v60M78 16v60M108 16v60M18 46h120" stroke="#fff" stroke-opacity=".28" stroke-width="1.4"/>
+                      <rect x="176" y="20" width="130" height="8" rx="4" fill="#fff" opacity=".35"/>
+                      <g fill="#fff" opacity=".28"><rect x="176" y="60" width="34" height="12" rx="3"/><rect x="220" y="60" width="34" height="12" rx="3"/><rect x="264" y="60" width="34" height="12" rx="3"/><rect x="176" y="82" width="34" height="12" rx="3"/><rect x="220" y="82" width="34" height="12" rx="3"/><rect x="264" y="82" width="34" height="12" rx="3"/><rect x="40" y="96" width="34" height="12" rx="3"/><rect x="84" y="96" width="34" height="12" rx="3"/></g>
+                    </svg>
+                    <div class="tagrow"><span class="rtag"><svg><use href="#ic-star"/></svg> 4.8</span><span class="rtag avail"><svg><use href="#ic-check"/></svg> Available</span></div>
+                  </div>
+                  <div class="rbody">
+                    <div><div class="rtitle">Room 204</div><div class="rsub"><svg width="13" height="13"><use href="#ic-pin"/></svg> Engineering Building · Floor 2</div></div>
+                    <div class="amen"><span class="achip"><svg><use href="#ic-board"/></svg> Projector</span><span class="achip"><svg><use href="#ic-chip"/></svg> Whiteboard</span></div>
+                    <div class="rfoot"><span class="rcap"><svg width="16" height="16"><use href="#ic-users"/></svg> Fits 40</span><button class="btn btn-primary sm pillbtn" style="width:auto;padding:0 18px" data-go="details">View details</button></div>
+                  </div>
+                </div>
+                <!-- room 2 -->
+                <div class="room">
+                  <div class="rimg" style="background:linear-gradient(135deg,#4f7cf7,#33b0e6)">
+                    <svg viewBox="0 0 320 130" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0" aria-hidden="true">
+                      <defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f7cf7"/><stop offset="1" stop-color="#33bfe0"/></linearGradient></defs>
+                      <rect width="320" height="130" fill="url(#g2)"/>
+                      <rect x="182" y="16" width="120" height="60" rx="4" fill="#fff" opacity=".16"/>
+                      <path d="M182 16v60M212 16v60M242 16v60M272 16v60M182 46h120" stroke="#fff" stroke-opacity=".28" stroke-width="1.4"/>
+                      <rect x="18" y="20" width="130" height="8" rx="4" fill="#fff" opacity=".35"/>
+                      <g fill="#fff" opacity=".28"><rect x="18" y="60" width="34" height="12" rx="3"/><rect x="62" y="60" width="34" height="12" rx="3"/><rect x="106" y="60" width="34" height="12" rx="3"/><rect x="18" y="82" width="34" height="12" rx="3"/><rect x="62" y="82" width="34" height="12" rx="3"/><rect x="106" y="82" width="34" height="12" rx="3"/><rect x="210" y="96" width="34" height="12" rx="3"/><rect x="254" y="96" width="34" height="12" rx="3"/></g>
+                    </svg>
+                    <div class="tagrow"><span class="rtag"><svg><use href="#ic-star"/></svg> 4.6</span><span class="rtag avail"><svg><use href="#ic-check"/></svg> Available</span></div>
+                  </div>
+                  <div class="rbody">
+                    <div><div class="rtitle">Room 105</div><div class="rsub"><svg width="13" height="13"><use href="#ic-pin"/></svg> Humanities Hall · Floor 1</div></div>
+                    <div class="amen"><span class="achip"><svg><use href="#ic-board"/></svg> Projector</span><span class="achip"><svg><use href="#ic-chip"/></svg> Smartboard</span></div>
+                    <div class="rfoot"><span class="rcap"><svg width="16" height="16"><use href="#ic-users"/></svg> Fits 50</span><button class="btn btn-primary sm pillbtn" style="width:auto;padding:0 18px" data-go="details">View details</button></div>
+                  </div>
+                </div>
+                <!-- room 3 -->
+                <div class="room">
+                  <div class="rimg" style="background:linear-gradient(135deg,#ff7a59,#ff5c8a)">
+                    <svg viewBox="0 0 320 130" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0" aria-hidden="true">
+                      <defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a59"/><stop offset="1" stop-color="#ff5c9d"/></linearGradient></defs>
+                      <rect width="320" height="130" fill="url(#g3)"/>
+                      <path d="M40 96q120 -70 240 0" stroke="#fff" stroke-opacity=".3" stroke-width="2" fill="none"/>
+                      <rect x="120" y="14" width="80" height="9" rx="4" fill="#fff" opacity=".4"/>
+                      <g fill="#fff" opacity=".26"><rect x="30" y="52" width="30" height="11" rx="3"/><rect x="70" y="50" width="30" height="11" rx="3"/><rect x="110" y="48" width="30" height="11" rx="3"/><rect x="150" y="48" width="30" height="11" rx="3"/><rect x="190" y="50" width="30" height="11" rx="3"/><rect x="230" y="52" width="30" height="11" rx="3"/><rect x="40" y="78" width="30" height="11" rx="3"/><rect x="90" y="76" width="30" height="11" rx="3"/><rect x="140" y="76" width="30" height="11" rx="3"/><rect x="190" y="78" width="30" height="11" rx="3"/><rect x="240" y="80" width="30" height="11" rx="3"/></g>
+                    </svg>
+                    <div class="tagrow"><span class="rtag"><svg><use href="#ic-star"/></svg> 4.9</span><span class="rtag avail"><svg><use href="#ic-check"/></svg> Available</span></div>
+                  </div>
+                  <div class="rbody">
+                    <div><div class="rtitle">Lecture Hall B</div><div class="rsub"><svg width="13" height="13"><use href="#ic-pin"/></svg> Science Center · Floor 1</div></div>
+                    <div class="amen"><span class="achip"><svg><use href="#ic-board"/></svg> Projector</span><span class="achip"><svg><use href="#ic-mic"/></svg> Audio System</span><span class="achip"><svg><use href="#ic-chip"/></svg> Whiteboard</span></div>
+                    <div class="rfoot"><span class="rcap"><svg width="16" height="16"><use href="#ic-users"/></svg> Fits 120</span><button class="btn btn-primary sm pillbtn" style="width:auto;padding:0 18px" data-go="details">View details</button></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ================= NO RESULTS ================= -->
+            <section class="page" data-page="noresults">
+              <div class="subhead"><button class="back" data-go="home"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt">Search</div><div class="th">No matches</div></div></div>
+              <div class="state">
+                <div class="glyph gw"><svg width="40" height="40"><use href="#ic-alert"/></svg></div>
+                <h2>No rooms available</h2>
+                <p>Nothing matches <b>Sep 15, 10:00 AM–12:00 PM</b> for 35 people. Try a different time or loosen your filters.</p>
+              </div>
+              <div class="actions">
+                <button class="btn btn-primary" data-go="home"><svg width="17" height="17"><use href="#ic-cal"/></svg> Change date &amp; time</button>
+                <button class="btn btn-soft" data-go="results">Clear filters</button>
+                <button class="btn btn-ghost" data-go="home">Back to home</button>
+              </div>
+            </section>
+
+            <!-- ================= ROOM DETAILS ================= -->
+            <section class="page" data-page="details">
+              <div class="subhead"><button class="back" data-go="results"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt">Room details</div><div class="th">Room 204</div></div></div>
+              <div style="height:12px"></div>
+              <div class="rimg" style="height:172px;border-radius:22px;background:linear-gradient(135deg,#6d3bf5,#a06bf0)">
+                <svg viewBox="0 0 360 172" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;border-radius:22px" aria-hidden="true">
+                  <defs><linearGradient id="gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c4dff"/><stop offset="1" stop-color="#b06bf0"/></linearGradient></defs>
+                  <rect width="360" height="172" fill="url(#gd)"/>
+                  <rect x="24" y="22" width="150" height="78" rx="5" fill="#fff" opacity=".16"/>
+                  <path d="M24 22v78M62 22v78M100 22v78M138 22v78M24 61h150" stroke="#fff" stroke-opacity=".28" stroke-width="1.5"/>
+                  <rect x="210" y="28" width="130" height="9" rx="4" fill="#fff" opacity=".38"/>
+                  <g fill="#fff" opacity=".26"><rect x="210" y="78" width="38" height="14" rx="3"/><rect x="258" y="78" width="38" height="14" rx="3"/><rect x="306" y="78" width="38" height="14" rx="3"/><rect x="210" y="104" width="38" height="14" rx="3"/><rect x="258" y="104" width="38" height="14" rx="3"/><rect x="306" y="104" width="38" height="14" rx="3"/><rect x="60" y="126" width="38" height="14" rx="3"/><rect x="110" y="126" width="38" height="14" rx="3"/></g>
+                </svg>
+                <div class="tagrow"><span class="rtag"><svg><use href="#ic-star"/></svg> 4.8 · 96 bookings</span><span class="rtag avail"><svg><use href="#ic-check"/></svg> Available</span></div>
+              </div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:2px">
+                <div><h2 class="big" style="font-size:22px">Room 204</h2><div class="rsub" style="font-size:13px;margin-top:4px"><svg width="14" height="14"><use href="#ic-pin"/></svg> Engineering Building · Floor 2</div></div>
+                <span class="rcap" style="background:var(--tint);color:var(--v1);padding:7px 12px;border-radius:12px"><svg width="16" height="16"><use href="#ic-users"/></svg> 40</span>
+              </div>
+              <div class="sumcard"><span class="ic"><svg width="20" height="20"><use href="#ic-clock"/></svg></span>
+                <div><div class="k">Your slot</div><div class="v"><span class="mono">Sep 15, 2026</span> · 10:00 AM – 12:00 PM</div></div></div>
+              <div class="rows">
+                <div class="sec-h">Room information</div>
+                <div class="stack"><span class="k">Capacity</span><span class="v">40 seats · lecture-style desk-chairs</span></div>
+                <div class="stack"><span class="k">Equipment</span><span class="v">HD Projector · Sound Speakers · Large Whiteboard · USB-C input cable</span></div>
+                <div class="stack"><span class="k">Accessibility</span><span class="v">Wheelchair accessible entrance · hearing loop installed</span></div>
+              </div>
+              <div class="actions">
+                <button class="btn btn-primary" data-go="form">Continue to booking <svg width="17" height="17"><use href="#ic-chev"/></svg></button>
+                <button class="btn btn-ghost" data-go="results">Back to results</button>
+              </div>
+            </section>
+
+            <!-- ================= BOOKING FORM ================= -->
+            <section class="page" data-page="form">
+              <div class="subhead"><button class="back" data-go="details"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt"><span class="stepdot">2</span>Booking request</div><div class="th">Room 204 · Sep 15</div></div></div>
+              <div style="height:12px"></div>
+              <div class="banner banner-err" id="formErrBanner" hidden>
+                <span class="bi"><svg width="18" height="18"><use href="#ic-alert"/></svg></span>
+                <span><strong>2 errors found</strong>Not submitted. Fix the highlighted fields below.</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div class="field"><label>Event title</label><div class="control"><span class="val">Council planning meeting</span></div></div>
+                <div class="field"><label>Organizer name</label><div class="control"><span class="val">Mandar Patil</span></div></div>
+                <div class="field"><label>Purpose of booking</label><div class="control"><span class="val">Club meeting</span><svg class="chev" width="16" height="16"><use href="#ic-chevd"/></svg></div></div>
+                <div class="field"><label>Expected attendance</label>
+                  <div class="control" id="attCtl"><svg width="17" height="17"><use href="#ic-users"/></svg><span class="val mono" id="attVal">35</span></div>
+                  <span class="help" id="attHelp">Maximum capacity: 40 people.</span></div>
+                <div class="field"><label>End time</label>
+                  <div class="control" id="endCtl"><svg width="17" height="17"><use href="#ic-clock"/></svg><span class="val mono" id="endVal">12:00 PM</span></div>
+                  <span class="help" id="endHelp">Must be later than 10:00 AM.</span></div>
+              </div>
+              <div class="actions">
+                <button class="btn btn-primary" id="reviewBtn" data-go="review">Review booking</button>
+                <div class="btnrow"><button class="btn btn-ghost" data-go="details">Back</button><button class="btn btn-danger" data-go="home">Cancel</button></div>
+              </div>
+            </section>
+
+            <!-- ================= REVIEW ================= -->
+            <section class="page" data-page="review">
+              <div class="subhead"><button class="back" data-go="form"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt"><span class="stepdot">3</span>Almost there</div><div class="th">Review your request</div></div></div>
+              <div style="height:12px"></div>
+              <div class="rows">
+                <div class="sec-h">Classroom details <button class="edit" data-go="details">Edit</button></div>
+                <div class="kv"><span class="k">Room</span><span class="v">Room 204, Engineering</span></div>
+                <div class="kv"><span class="k">Date</span><span class="v mono">Sep 15, 2026</span></div>
+                <div class="kv"><span class="k">Time</span><span class="v mono">10:00 AM – 12:00 PM</span></div>
+              </div>
+              <div class="rows">
+                <div class="sec-h">Event details <button class="edit" data-go="form">Edit</button></div>
+                <div class="kv"><span class="k">Event</span><span class="v">Council planning meeting</span></div>
+                <div class="kv"><span class="k">Purpose</span><span class="v">Club meeting</span></div>
+                <div class="kv"><span class="k">Attendance</span><span class="v">35</span></div>
+                <div class="kv"><span class="k">Organizer</span><span class="v">Mandar Patil</span></div>
+              </div>
+              <div class="checkbox checked" id="agree"><span class="box"><svg width="14" height="14"><use href="#ic-check"/></svg></span>
+                <span>I've reviewed all details above and agree to the booking rules.</span></div>
+              <div class="actions">
+                <button class="btn btn-primary" data-go="submitted">Submit booking request</button>
+                <div class="btnrow"><button class="btn btn-ghost" data-go="form">Back</button><button class="btn btn-danger" data-go="home">Cancel</button></div>
+              </div>
+            </section>
+
+            <!-- ================= SUBMITTED ================= -->
+            <section class="page" data-page="submitted">
+              <div class="state" style="padding-bottom:12px">
+                <div class="glyph gok"><span class="ping"></span><svg width="42" height="42"><use href="#ic-check"/></svg></div>
+                <h2>Request submitted!</h2>
+                <p>Your booking request has been sent to the Scheduling Office for review.</p>
+              </div>
+              <div class="rows">
+                <div class="kv" style="border-top:0"><span class="k">Reference</span><span class="v mono" style="font-size:14px">CR-1052</span></div>
+                <div class="kv"><span class="k">Classroom</span><span class="v">Room 204, Engineering</span></div>
+                <div class="kv"><span class="k">Date &amp; time</span><span class="v mono">Sep 15 · 10:00–12:00</span></div>
+                <div class="kv"><span class="k">Status</span><span class="badge b-pending">Pending</span></div>
+              </div>
+              <div class="card p">
+                <div class="h-sec" style="margin-bottom:14px">What happens next?</div>
+                <div class="steps">
+                  <div class="step"><span class="n">1</span><span>Request saved as <b class="mono">CR-1052</b>. Approval is still pending.</span></div>
+                  <div class="step"><span class="n">2</span><span>The Scheduling Office reviews within <b>1–2 business days</b>.</span></div>
+                  <div class="step"><span class="n">3</span><span>Track everything under <b>My Requests</b>.</span></div>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn btn-primary" data-go="pending"><svg width="17" height="17"><use href="#ic-refresh"/></svg> Track request</button>
+                <button class="btn btn-ghost" data-go="home">Back to home</button>
+              </div>
+            </section>
+
+            <!-- ================= MY REQUESTS ================= -->
+            <section class="page" data-page="requests">
+              <div class="approw" style="padding-left:0;padding-right:0">
+                <div class="l"><div class="greet"><div class="hi">Track your bookings</div><div class="nm" style="font-size:20px">My Requests</div></div></div>
+                <button class="iconbtn" aria-label="Search"><svg width="20" height="20"><use href="#ic-search"/></svg></button>
+              </div>
+              <div class="tabs" id="reqTabs">
+                <button class="tab on" data-tab="all">All · 3</button>
+                <button class="tab" data-tab="pending">Pending · 1</button>
+                <button class="tab" data-tab="approved">Approved · 1</button>
+                <button class="tab" data-tab="rejected">Rejected · 1</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div class="card reqcard" data-status="pending" role="button" tabindex="0" data-go="pending">
+                  <div class="reqtop"><span class="code"><span class="cc"><svg width="16" height="16"><use href="#ic-clock"/></svg></span>CR-1052</span><span class="badge b-pending">Pending</span></div>
+                  <div class="reqm"><div class="m1">Room 204, Engineering Building</div><div class="m2"><svg width="13" height="13" style="color:var(--v1)"><use href="#ic-clock"/></svg> Sep 15, 2026 · 10:00 AM</div></div>
+                  <button class="btn btn-soft sm" data-go="pending">View details</button>
+                </div>
+                <div class="card reqcard" data-status="approved" role="button" tabindex="0" data-go="approved">
+                  <div class="reqtop"><span class="code"><span class="cc" style="background:var(--mint-soft);color:var(--mint-ink)"><svg width="16" height="16"><use href="#ic-check"/></svg></span>CR-1048</span><span class="badge b-approved">Approved</span></div>
+                  <div class="reqm"><div class="m1">Room 204, Engineering Building</div><div class="m2"><svg width="13" height="13" style="color:var(--v1)"><use href="#ic-clock"/></svg> Sep 10, 2026 · 02:00 PM</div></div>
+                  <button class="btn btn-soft sm" data-go="approved">View details</button>
+                </div>
+                <div class="card reqcard" data-status="rejected">
+                  <div class="reqtop"><span class="code"><span class="cc" style="background:var(--red-soft);color:var(--red-ink)"><svg width="16" height="16"><use href="#ic-close"/></svg></span>CR-1039</span><span class="badge b-rejected">Rejected</span></div>
+                  <div class="reqm"><div class="m1">Lecture Hall A, Science Center</div><div class="m2"><svg width="13" height="13" style="color:var(--v1)"><use href="#ic-clock"/></svg> Sep 05, 2026 · 04:00 PM</div></div>
+                  <button class="btn btn-ghost sm">View details</button>
+                </div>
+              </div>
+            </section>
+
+            <!-- ================= REQUEST PENDING ================= -->
+            <section class="page" data-page="pending">
+              <div class="subhead"><button class="back" data-go="requests"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt">Request</div><div class="th mono">CR-1052</div></div>
+                <div style="flex:1"></div><span class="badge b-pending">Pending</span></div>
+              <div style="height:12px"></div>
+              <div class="rows">
+                <div class="kv" style="border-top:0"><span class="k">Classroom</span><span class="v">Room 204, Engineering</span></div>
+                <div class="kv"><span class="k">Date &amp; time</span><span class="v mono">Sep 15 · 10:00–12:00</span></div>
+                <div class="kv"><span class="k">Event</span><span class="v">Council planning meeting</span></div>
+                <div class="kv"><span class="k">Organizer</span><span class="v">Mandar Patil</span></div>
+                <div class="kv"><span class="k">Student ID</span><span class="v mono">STU-2024-0847</span></div>
+                <div class="kv"><span class="k">Submitted</span><span class="v mono">Sep 4 · 3:45 PM</span></div>
+              </div>
+              <div class="card p">
+                <div class="h-sec" style="margin-bottom:16px">Request history</div>
+                <div class="timeline">
+                  <div class="tl done"><div class="node"><span class="ring"><svg width="11" height="11"><use href="#ic-check"/></svg></span><span class="stem"></span></div><div><div class="tt">Submitted</div><div class="ts mono">Sep 4, 2026 · 3:45 PM</div></div></div>
+                  <div class="tl active"><div class="node"><span class="ring"></span><span class="stem"></span></div><div><div class="tt">Under review</div><div class="ts">Assigned to Scheduling Office</div></div></div>
+                  <div class="tl pending"><div class="node"><span class="ring"></span></div><div><div class="tt">Decision pending</div><div class="ts">Awaiting final approval</div></div></div>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn btn-primary" id="refreshBtn"><svg width="17" height="17"><use href="#ic-refresh"/></svg> Refresh status</button>
+                <button class="btn btn-ghost" data-go="requests">Back to my requests</button>
+              </div>
+            </section>
+
+            <!-- ================= REQUEST APPROVED ================= -->
+            <section class="page" data-page="approved">
+              <div class="subhead"><button class="back" data-go="requests"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt">Request</div><div class="th mono">CR-1052</div></div>
+                <div style="flex:1"></div><span class="badge b-approved">Approved</span></div>
+              <div class="state" style="padding:20px 22px 10px">
+                <div class="glyph gok"><svg width="42" height="42"><use href="#ic-check"/></svg></div>
+                <h2>You're all set!</h2>
+                <p>Your classroom booking has been approved.</p>
+              </div>
+              <div class="rows">
+                <div class="kv" style="border-top:0"><span class="k">Reference</span><span class="v mono" style="font-size:14px">CR-1052</span></div>
+                <div class="kv"><span class="k">Classroom</span><span class="v">Room 204, Engineering</span></div>
+                <div class="kv"><span class="k">Date &amp; time</span><span class="v mono">Sep 15 · 10:00–12:00</span></div>
+                <div class="kv"><span class="k">Status</span><span class="badge b-approved">Approved</span></div>
+              </div>
+              <div class="card p">
+                <div class="timeline">
+                  <div class="tl done"><div class="node"><span class="ring"><svg width="11" height="11"><use href="#ic-check"/></svg></span><span class="stem"></span></div><div><div class="tt">Submitted</div><div class="ts mono">Sep 4 · 3:45 PM</div></div></div>
+                  <div class="tl done"><div class="node"><span class="ring"><svg width="11" height="11"><use href="#ic-check"/></svg></span><span class="stem"></span></div><div><div class="tt">Under review</div><div class="ts mono">Sep 4 · 4:12 PM</div></div></div>
+                  <div class="tl done"><div class="node"><span class="ring"><svg width="11" height="11"><use href="#ic-check"/></svg></span></div><div><div class="tt">Approved</div><div class="ts mono">Sep 6 · 9:00 AM</div></div></div>
+                </div>
+              </div>
+              <div class="actions"><button class="btn btn-primary" data-go="requests">Back to my requests</button><button class="btn btn-ghost" data-go="home">Home</button></div>
+            </section>
+
+            <!-- ================= HELP ================= -->
+            <section class="page" data-page="help">
+              <div class="approw" style="padding-left:0;padding-right:0">
+                <div class="l"><button class="iconbtn plain" data-go="home"><svg width="22" height="22"><use href="#ic-back"/></svg></button>
+                  <div class="greet"><div class="hi">Support</div><div class="nm" style="font-size:20px">Help &amp; Rules</div></div></div>
+              </div>
+              <div class="rows">
+                <div class="sec-h">Booking rules</div>
+                <div class="rule"><span class="n">1</span><span>Requests must be submitted at least <b>48 hours</b> in advance.</span></div>
+                <div class="rule"><span class="n">2</span><span>Max session duration is <b>4 hours</b> per student group per day.</span></div>
+                <div class="rule"><span class="n">3</span><span>Rooms must be left clean and the layout restored.</span></div>
+                <div class="rule"><span class="n">4</span><span>Report any equipment damage immediately.</span></div>
+              </div>
+              <div class="rows"><div class="sec-h">Notice period</div>
+                <p class="prose">Cancellations must be made at least <b>24 hours</b> before the start time. Repeated no-shows may lead to suspension of reservation privileges.</p></div>
+              <div class="rows"><div class="sec-h">Room use guidelines</div>
+                <p class="prose">Classrooms are for academic use, study groups and registered club activities. Commercial activities and public event sales are prohibited.</p></div>
+              <div class="rows">
+                <div class="sec-h">Contact Scheduling Office</div>
+                <div class="contact-i"><span class="ci"><svg width="16" height="16"><use href="#ic-pin"/></svg></span>Room 102, Admin Building</div>
+                <div class="contact-i"><span class="ci"><svg width="16" height="16"><use href="#ic-mail"/></svg></span>scheduling@university.edu</div>
+                <div class="contact-i"><span class="ci"><svg width="16" height="16"><use href="#ic-phone"/></svg></span>(555) 123-4567</div>
+                <div class="contact-i"><span class="ci"><svg width="16" height="16"><use href="#ic-clock"/></svg></span>Mon–Fri · 8:00 AM – 5:00 PM</div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        <!-- bottom tab bar -->
+        <nav class="tabbar" id="tabbar">
+          <button class="tbtn on" data-tab-go="home"><svg><use href="#ic-home"/></svg>Home</button>
+          <button class="tbtn" data-tab-go="requests"><svg><use href="#ic-list"/></svg>Requests</button>
+          <button class="tfab" data-go="home" aria-label="Book"><svg width="26" height="26"><use href="#ic-search"/></svg></button>
+          <button class="tbtn" data-tab-go="help"><svg><use href="#ic-help"/></svg>Help</button>
+          <button class="tbtn" id="tabMenu"><svg><use href="#ic-menu"/></svg>Menu</button>
+        </nav>
+
+        <!-- drawer -->
+        <div class="scrim" id="scrim"></div>
+        <nav class="drawer" id="drawer" aria-hidden="true">
+          <div class="dhero">
+            <button class="dclose" id="closeMenu" aria-label="Close"><svg width="18" height="18"><use href="#ic-close"/></svg></button>
+            <div class="avatar" style="display:grid;place-items:center">MP</div>
+            <div class="nm">Mandar Patil</div><div class="rl">STU-2024-0847</div>
+          </div>
+          <div class="ditems">
+            <button class="ditem" data-go="home"><svg width="20" height="20"><use href="#ic-home"/></svg> Home</button>
+            <button class="ditem" data-go="home"><svg width="20" height="20"><use href="#ic-search"/></svg> Find &amp; book</button>
+            <button class="ditem" data-go="requests"><svg width="20" height="20"><use href="#ic-list"/></svg> My requests</button>
+            <button class="ditem" data-go="help"><svg width="20" height="20"><use href="#ic-help"/></svg> Help &amp; rules</button>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">A clickable concept built from the ClassBook wireframes · tap the phone or use “All screens”.</div>
+</div>
+
+<!-- screen picker overlay -->
+<div class="picker" id="picker">
+  <div class="pk">
+    <div class="pkh"><h3>All screens</h3><button class="pill" id="pickClose"><svg width="15" height="15"><use href="#ic-close"/></svg> Close</button></div>
+    <div class="pkgrid" id="pkgrid"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var pages=[].slice.call(document.querySelectorAll('.page'));
+  var scroll=document.getElementById('scroll');
+  var tabbar=document.getElementById('tabbar');
+
+  function setError(on){
+    document.getElementById('formErrBanner').hidden=!on;
+    document.getElementById('attVal').textContent=on?'55':'35';
+    document.getElementById('endVal').textContent=on?'09:00 AM':'12:00 PM';
+    document.getElementById('attCtl').classList.toggle('err',on);
+    document.getElementById('endCtl').classList.toggle('err',on);
+    var ah=document.getElementById('attHelp'),eh=document.getElementById('endHelp');
+    ah.classList.toggle('err',on);eh.classList.toggle('err',on);
+    ah.textContent=on?'Attendance exceeds room capacity (max 40).':'Maximum capacity: 40 people.';
+    eh.textContent=on?'End time must be later than start time.':'Must be later than 10:00 AM.';
+    var rb=document.getElementById('reviewBtn');
+    rb.setAttribute('data-go',on?'form':'review');
+    rb.firstChild&&(rb.textContent=on?'Return to form':'Review booking');
+  }
+
+  var tabMap={home:'home',requests:'requests',help:'help'};
+  function syncTabs(id){
+    [].forEach.call(tabbar.querySelectorAll('.tbtn'),function(b){
+      b.classList.toggle('on', b.getAttribute('data-tab-go')===id);
+    });
+  }
+
+  function show(id){
+    var target=id,forceErr=false;
+    if(id==='form-err'){target='form';forceErr=true;}
+    if(target==='form') setError(forceErr);
+    pages.forEach(function(p){p.classList.toggle('on',p.dataset.page===target);});
+    syncTabs(target);
+    if(scroll) scroll.scrollTop=0;
+    closeMenu(); closePicker();
+  }
+
+  document.addEventListener('click',function(e){
+    var g=e.target.closest('[data-go]'); if(g){e.preventDefault();show(g.getAttribute('data-go'));return;}
+    var t=e.target.closest('[data-tab-go]'); if(t){show(t.getAttribute('data-tab-go'));return;}
+  });
+  document.addEventListener('keydown',function(e){
+    if((e.key==='Enter'||e.key===' ')&&e.target.hasAttribute&&e.target.hasAttribute('data-go')){e.preventDefault();show(e.target.getAttribute('data-go'));}
+    if(e.key==='Escape'){closeMenu();closePicker();}
+  });
+
+  // drawer
+  var drawer=document.getElementById('drawer'),scrim=document.getElementById('scrim');
+  function openMenu(){drawer.classList.add('on');scrim.classList.add('on');drawer.setAttribute('aria-hidden','false');}
+  function closeMenu(){drawer.classList.remove('on');scrim.classList.remove('on');drawer.setAttribute('aria-hidden','true');}
+  document.getElementById('menuBtn').addEventListener('click',openMenu);
+  document.getElementById('tabMenu').addEventListener('click',openMenu);
+  document.getElementById('closeMenu').addEventListener('click',closeMenu);
+  scrim.addEventListener('click',closeMenu);
+
+  // filter
+  document.getElementById('filterBtn').addEventListener('click',function(){
+    var fp=document.getElementById('filterPanel');fp.hidden=!fp.hidden;
+    this.style.color=fp.hidden?'':'var(--v1)';this.style.borderColor=fp.hidden?'':'var(--v1)';
+  });
+  // checkbox
+  document.getElementById('agree').addEventListener('click',function(){this.classList.toggle('checked');});
+  // tabs
+  document.getElementById('reqTabs').addEventListener('click',function(e){
+    var t=e.target.closest('.tab');if(!t)return;
+    this.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});t.classList.add('on');
+    var f=t.dataset.tab;
+    document.querySelectorAll('.page[data-page="requests"] .reqcard').forEach(function(c){
+      c.style.display=(f==='all'||c.dataset.status===f)?'':'none';
+    });
+  });
+  // refresh
+  document.getElementById('refreshBtn').addEventListener('click',function(){
+    var ic=this.querySelector('svg');ic.classList.add('spin');var self=this;self.style.pointerEvents='none';
+    setTimeout(function(){ic.classList.remove('spin');self.innerHTML='<svg width="17" height="17"><use href="#ic-check"/></svg> Status up to date';
+      setTimeout(function(){self.innerHTML='<svg width="17" height="17"><use href="#ic-refresh"/></svg> Refresh status';self.style.pointerEvents='';},1500);},1100);
+  });
+
+  // theme
+  var tbtn=document.getElementById('themeBtn'),tlbl=document.getElementById('themeLbl');
+  function sysDark(){return window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;}
+  var dark=sysDark();
+  try{var s=localStorage.getItem('cb-theme');if(s)dark=(s==='dark');}catch(e){}
+  function apply(){document.documentElement.setAttribute('data-theme',dark?'dark':'light');tlbl.textContent=dark?'Light':'Dark';}
+  apply();
+  tbtn.addEventListener('click',function(){dark=!dark;apply();try{localStorage.setItem('cb-theme',dark?'dark':'light');}catch(e){}});
+
+  // screen picker
+  var picker=document.getElementById('picker');
+  var SCREENS=[
+    ['DISCOVER','home','Home / Search','Landing + search',''],
+    ['DISCOVER','loading','Checking availability','Loading state',''],
+    ['DISCOVER','results','Results','3 rooms + filters',''],
+    ['DISCOVER','noresults','No rooms found','Empty state','w'],
+    ['DISCOVER','details','Room details','Full room info',''],
+    ['BOOK','form','Booking form','Step 2 of 3',''],
+    ['BOOK','form-err','Form · errors','Validation state','b'],
+    ['BOOK','review','Review request','Step 3 of 3',''],
+    ['BOOK','submitted','Submitted','Success + next steps','o'],
+    ['TRACK','requests','My requests','List + filter tabs',''],
+    ['TRACK','pending','Request · pending','Detail + timeline','w'],
+    ['TRACK','approved','Request · approved','Approved state','o'],
+    ['MORE','help','Help & rules','Policies + contact','']
+  ];
+  var grid=document.getElementById('pkgrid');
+  grid.innerHTML=SCREENS.map(function(s){
+    return '<button class="pkitem '+s[4]+'" data-go="'+s[1]+'"><div class="pkn">'+s[0]+'</div>'+
+      '<div class="pkt"><span class="dt"></span>'+s[2]+'</div><div class="pks">'+s[3]+'</div></button>';
+  }).join('');
+  function openPicker(){picker.classList.add('on');}
+  function closePicker(){picker.classList.remove('on');}
+  document.getElementById('pickBtn').addEventListener('click',openPicker);
+  document.getElementById('pickClose').addEventListener('click',closePicker);
+  picker.addEventListener('click',function(e){if(e.target===picker)closePicker();});
+
+  // auto-advance loading -> results
+  var _show=show,timer=null;
+  show=function(id){_show(id);if(timer){clearTimeout(timer);timer=null;}
+    if(id==='loading'){timer=setTimeout(function(){var l=document.querySelector('.page[data-page="loading"]');if(l&&l.classList.contains('on'))_show('results');},1700);}};
+
+  show('home');
+})();
+</script>
