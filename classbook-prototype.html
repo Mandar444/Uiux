@@ -201,6 +201,11 @@
   .control svg{color:var(--muted);flex:none}
   .control .val{flex:1;outline:none}
   .control .chev{margin-left:auto;color:var(--faint)}
+  .control input.val,.control textarea.val{background:transparent;border:0;outline:none;font:inherit;color:inherit;width:100%;min-width:0;padding:0;resize:none}
+  .control input.val::placeholder,.control textarea.val::placeholder{color:var(--faint);font-weight:500}
+  .control.edit-on{border-color:var(--v1);box-shadow:0 0 0 4px var(--tint)}
+  .hin input.hedit{background:transparent;border:0;outline:none;width:100%;min-width:0;padding:0;font-family:var(--mono);font-size:13px;font-weight:700;color:#161234}
+  .hin input.hedit::placeholder{color:#b9b6cf}
   .control:focus-within{border-color:var(--v1);box-shadow:0 0 0 4px var(--tint)}
   .control.err{border-color:var(--red);background:var(--red-soft)}
   .help{font-size:11.5px;color:var(--muted)}
@@ -275,6 +280,8 @@
   .tl .tt{font-size:13.5px;font-weight:700;color:var(--ink)}
   .tl .ts{font-size:11.5px;color:var(--muted);margin-top:1px}
   .tl.pending .tt{color:var(--muted)}
+  .tl.bad .ring{background:var(--red);border-color:var(--red)}
+  .tl.bad .stem{background:var(--red)}
 
   /* rules / contact */
   .rule{display:flex;gap:12px;font-size:12.5px;color:var(--ink-2);line-height:1.5;padding:12px 16px;border-top:1px solid var(--line)}
@@ -352,6 +359,24 @@
   .pkitem.w .dt{background:var(--amber)}.pkitem.o .dt{background:var(--mint)}.pkitem.b .dt{background:var(--red)}
 
   .foot{width:100%;max-width:1000px;margin-top:22px;color:rgba(255,255,255,.55);font-size:12px;text-align:center}
+  .mobilebar{display:none}
+
+  /* ===== MOBILE WEB APP: full-screen, no device chrome (distinct from desktop mockup) ===== */
+  @media (max-width:640px){
+    body{background:var(--bg)}
+    .stage{padding:0;min-height:100dvh}
+    .top,.foot{display:none}
+    .device-wrap{width:100%}
+    .device{width:100%;max-width:none;padding:0;border-radius:0;background:transparent;box-shadow:none}
+    .notch{display:none}
+    .statusbar{display:none}
+    .screen{height:100dvh;border-radius:0}
+    .screen{padding-top:env(safe-area-inset-top,0px)}
+    .mobilebar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;background:var(--surface);border-bottom:1px solid var(--line)}
+    .mobilebar .mb-brand{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:800;color:var(--ink);font-size:16px}
+    .mobilebar .mb-brand .l{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;color:#fff}
+    .mobilebar .mb-t{border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px}
+  }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -398,6 +423,10 @@
     <div class="device">
       <div class="notch"></div>
       <div class="screen">
+        <div class="mobilebar">
+          <span class="mb-brand"><span class="l"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg></span>ClassBook</span>
+          <button class="mb-t" id="mThemeBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke-linecap="round"/></svg><span id="mThemeLbl">Dark</span></button>
+        </div>
         <div class="statusbar">
           <span>9:41</span>
           <span class="r">
@@ -427,7 +456,7 @@
                   <div class="hglr">
                     <div class="hin"><span class="k">From</span><span class="v mono">10:00 AM</span></div>
                     <div class="hin"><span class="k">To</span><span class="v mono">12:00 PM</span></div>
-                    <div class="hin"><span class="k">People</span><span class="v mono">35</span></div>
+                    <div class="hin"><span class="k">People</span><input class="hedit" type="number" min="1" value="35" placeholder="0" aria-label="People"></div>
                   </div>
                   <button class="hbtn" data-go="loading"><svg width="17" height="17"><use href="#ic-search"/></svg> Check availability</button>
                 </div>
@@ -600,11 +629,11 @@
                 <span><strong>2 errors found</strong>Not submitted. Fix the highlighted fields below.</span>
               </div>
               <div style="display:flex;flex-direction:column;gap:14px">
-                <div class="field"><label>Event title</label><div class="control"><span class="val">Council planning meeting</span></div></div>
-                <div class="field"><label>Organizer name</label><div class="control"><span class="val">Mandar Patil</span></div></div>
+                <div class="field"><label>Event title</label><div class="control"><input class="val" type="text" value="Council planning meeting" placeholder="e.g. Robotics club weekly meet"></div></div>
+                <div class="field"><label>Organizer name</label><div class="control"><input class="val" type="text" value="Mandar Patil" placeholder="Your full name"></div></div>
                 <div class="field"><label>Purpose of booking</label><div class="control"><span class="val">Club meeting</span><svg class="chev" width="16" height="16"><use href="#ic-chevd"/></svg></div></div>
                 <div class="field"><label>Expected attendance</label>
-                  <div class="control" id="attCtl"><svg width="17" height="17"><use href="#ic-users"/></svg><span class="val mono" id="attVal">35</span></div>
+                  <div class="control" id="attCtl"><svg width="17" height="17"><use href="#ic-users"/></svg><input class="val mono" id="attVal" type="number" min="1" value="35" placeholder="0"></div>
                   <span class="help" id="attHelp">Maximum capacity: 40 people.</span></div>
                 <div class="field"><label>End time</label>
                   <div class="control" id="endCtl"><svg width="17" height="17"><use href="#ic-clock"/></svg><span class="val mono" id="endVal">12:00 PM</span></div>
@@ -644,6 +673,8 @@
 
             <!-- ================= SUBMITTED ================= -->
             <section class="page" data-page="submitted">
+              <div class="subhead"><button class="back" data-go="home"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt">Booking</div><div class="th">Confirmation</div></div></div>
               <div class="state" style="padding-bottom:12px">
                 <div class="glyph gok"><span class="ping"></span><svg width="42" height="42"><use href="#ic-check"/></svg></div>
                 <h2>Request submitted!</h2>
@@ -672,7 +703,8 @@
             <!-- ================= MY REQUESTS ================= -->
             <section class="page" data-page="requests">
               <div class="approw" style="padding-left:0;padding-right:0">
-                <div class="l"><div class="greet"><div class="hi">Track your bookings</div><div class="nm" style="font-size:20px">My Requests</div></div></div>
+                <div class="l"><button class="iconbtn" data-go="home" aria-label="Back"><svg width="21" height="21"><use href="#ic-back"/></svg></button>
+                  <div class="greet"><div class="hi">Track your bookings</div><div class="nm" style="font-size:20px">My Requests</div></div></div>
                 <button class="iconbtn" aria-label="Search"><svg width="20" height="20"><use href="#ic-search"/></svg></button>
               </div>
               <div class="tabs" id="reqTabs">
@@ -692,10 +724,10 @@
                   <div class="reqm"><div class="m1">Room 204, Engineering Building</div><div class="m2"><svg width="13" height="13" style="color:var(--v1)"><use href="#ic-clock"/></svg> Sep 10, 2026 · 02:00 PM</div></div>
                   <button class="btn btn-soft sm" data-go="approved">View details</button>
                 </div>
-                <div class="card reqcard" data-status="rejected">
+                <div class="card reqcard" data-status="rejected" role="button" tabindex="0" data-go="rejected">
                   <div class="reqtop"><span class="code"><span class="cc" style="background:var(--red-soft);color:var(--red-ink)"><svg width="16" height="16"><use href="#ic-close"/></svg></span>CR-1039</span><span class="badge b-rejected">Rejected</span></div>
                   <div class="reqm"><div class="m1">Lecture Hall A, Science Center</div><div class="m2"><svg width="13" height="13" style="color:var(--v1)"><use href="#ic-clock"/></svg> Sep 05, 2026 · 04:00 PM</div></div>
-                  <button class="btn btn-ghost sm">View details</button>
+                  <button class="btn btn-ghost sm" data-go="rejected">View details</button>
                 </div>
               </div>
             </section>
@@ -752,6 +784,40 @@
                 </div>
               </div>
               <div class="actions"><button class="btn btn-primary" data-go="requests">Back to my requests</button><button class="btn btn-ghost" data-go="home">Home</button></div>
+            </section>
+
+            <!-- ================= REQUEST REJECTED ================= -->
+            <section class="page" data-page="rejected">
+              <div class="subhead"><button class="back" data-go="requests"><svg width="20" height="20"><use href="#ic-back"/></svg></button>
+                <div><div class="tt">Request</div><div class="th mono">CR-1039</div></div>
+                <div style="flex:1"></div><span class="badge b-rejected">Rejected</span></div>
+              <div class="state" style="padding:20px 22px 8px">
+                <div class="glyph" style="background:linear-gradient(135deg,#ff6b7a,#e0304a);color:#fff;box-shadow:0 12px 26px rgba(224,48,74,.4)"><svg width="40" height="40"><use href="#ic-close"/></svg></div>
+                <h2>Request not approved</h2>
+                <p>This room couldn't be booked for your selected slot.</p>
+              </div>
+              <div class="banner banner-err">
+                <span class="bi"><svg width="18" height="18"><use href="#ic-alert"/></svg></span>
+                <span><strong>Reason from Scheduling Office</strong>Lecture Hall A is reserved for a department examination during this time slot. Please pick a different room or time.</span>
+              </div>
+              <div class="rows">
+                <div class="kv" style="border-top:0"><span class="k">Reference</span><span class="v mono" style="font-size:14px">CR-1039</span></div>
+                <div class="kv"><span class="k">Classroom</span><span class="v">Lecture Hall A, Science Center</span></div>
+                <div class="kv"><span class="k">Date &amp; time</span><span class="v mono">Sep 5 · 04:00 PM</span></div>
+                <div class="kv"><span class="k">Status</span><span class="badge b-rejected">Rejected</span></div>
+              </div>
+              <div class="card p">
+                <div class="h-sec" style="margin-bottom:16px">Request history</div>
+                <div class="timeline">
+                  <div class="tl done"><div class="node"><span class="ring"><svg width="11" height="11"><use href="#ic-check"/></svg></span><span class="stem"></span></div><div><div class="tt">Submitted</div><div class="ts mono">Sep 3 · 1:20 PM</div></div></div>
+                  <div class="tl done"><div class="node"><span class="ring"><svg width="11" height="11"><use href="#ic-check"/></svg></span><span class="stem"></span></div><div><div class="tt">Under review</div><div class="ts mono">Sep 3 · 5:40 PM</div></div></div>
+                  <div class="tl bad"><div class="node"><span class="ring"><svg width="11" height="11"><use href="#ic-close"/></svg></span></div><div><div class="tt" style="color:var(--red-ink)">Rejected</div><div class="ts mono">Sep 4 · 10:05 AM</div></div></div>
+                </div>
+              </div>
+              <div class="actions">
+                <button class="btn btn-primary" data-go="home"><svg width="17" height="17"><use href="#ic-search"/></svg> Find another room</button>
+                <button class="btn btn-ghost" data-go="requests">Back to my requests</button>
+              </div>
             </section>
 
             <!-- ================= HELP ================= -->
@@ -831,7 +897,7 @@
 
   function setError(on){
     document.getElementById('formErrBanner').hidden=!on;
-    document.getElementById('attVal').textContent=on?'55':'35';
+    document.getElementById('attVal').value=on?'55':'35';
     document.getElementById('endVal').textContent=on?'09:00 AM':'12:00 PM';
     document.getElementById('attCtl').classList.toggle('err',on);
     document.getElementById('endCtl').classList.toggle('err',on);
@@ -904,12 +970,15 @@
 
   // theme
   var tbtn=document.getElementById('themeBtn'),tlbl=document.getElementById('themeLbl');
+  var mtbtn=document.getElementById('mThemeBtn'),mtlbl=document.getElementById('mThemeLbl');
   function sysDark(){return window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;}
   var dark=sysDark();
   try{var s=localStorage.getItem('cb-theme');if(s)dark=(s==='dark');}catch(e){}
-  function apply(){document.documentElement.setAttribute('data-theme',dark?'dark':'light');tlbl.textContent=dark?'Light':'Dark';}
+  function apply(){document.documentElement.setAttribute('data-theme',dark?'dark':'light');var lbl=dark?'Light':'Dark';if(tlbl)tlbl.textContent=lbl;if(mtlbl)mtlbl.textContent=lbl;}
   apply();
-  tbtn.addEventListener('click',function(){dark=!dark;apply();try{localStorage.setItem('cb-theme',dark?'dark':'light');}catch(e){}});
+  function toggleTheme(){dark=!dark;apply();try{localStorage.setItem('cb-theme',dark?'dark':'light');}catch(e){}}
+  tbtn.addEventListener('click',toggleTheme);
+  if(mtbtn)mtbtn.addEventListener('click',toggleTheme);
 
   // screen picker
   var picker=document.getElementById('picker');
@@ -926,6 +995,7 @@
     ['TRACK','requests','My requests','List + filter tabs',''],
     ['TRACK','pending','Request · pending','Detail + timeline','w'],
     ['TRACK','approved','Request · approved','Approved state','o'],
+    ['TRACK','rejected','Request · rejected','Rejected + reason','b'],
     ['MORE','help','Help & rules','Policies + contact','']
   ];
   var grid=document.getElementById('pkgrid');
